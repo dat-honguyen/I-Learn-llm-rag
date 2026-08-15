@@ -3,7 +3,7 @@ Description=llm-rag-api (RAG chat service)
 After=ollama.service
 
 [Container]
-Image=localhost/llm-rag-api:latest
+Image=ghcr.io/dat-honguyen/llm-rag-api:latest
 ContainerName=llm-rag-api
 Network=llm-rag.network
 Volume=llm-rag-api-data:/app/data

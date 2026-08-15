@@ -8,8 +8,10 @@
 4. `systemctl --user start ollama`
 5. `podman exec ollama ollama pull llama3.2:3b-instruct-q4_K_M`
 6. `podman exec ollama ollama pull nomic-embed-text`
-7. Build the API image (or let the self-hosted Actions runner do it via
-   `.github/workflows/ci.yml`), then `systemctl --user start llm-rag-api`.
+7. First image pull: `podman pull ghcr.io/dat-honguyen/llm-rag-api:latest`, then
+   `systemctl --user start llm-rag-api`. After that, pushes to `main` build and push the
+   image on GitHub-hosted `ubuntu-latest`, then the self-hosted runner on `homelab` just
+   pulls the new image and restarts the service, it never builds anything locally.
 8. Append `deploy/caddy-llm-rag.snippet`'s contents to `~/caddy/Caddyfile`, then
    `systemctl --user restart caddy`.
 9. `cloudflared tunnel route dns mydebian-sv llm.datisa.dev` (check
