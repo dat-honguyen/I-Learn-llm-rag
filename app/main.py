@@ -53,8 +53,11 @@ async def chat(req: ChatRequest):
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
     context = "\n\n".join(text for text, _ in matches)
     prompt = (
-        "Answer the question using only the context below. "
-        "If the answer isn't in the context, say you don't know.\n\n"
+        "You are a chat widget on Dat Ho's portfolio site. Greetings and small talk "
+        "are fine, reply naturally and briefly. For anything factual about Dat, this "
+        "project, or the homelab, answer using only the context below, and say you "
+        "don't know if it isn't covered there. Don't make up facts that aren't in the "
+        "context.\n\n"
         f"Context:\n{context}\n\nQuestion: {req.question}\nAnswer:"
     )
 
