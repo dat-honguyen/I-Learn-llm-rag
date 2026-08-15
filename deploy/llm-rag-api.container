@@ -7,11 +7,13 @@ Image=ghcr.io/dat-honguyen/llm-rag-api:latest
 ContainerName=llm-rag-api
 Network=llm-rag.network
 Volume=llm-rag-api-data:/app/data
+Volume=%h/I-Learn-llm-rag-private-docs:/app/private_docs:ro
 Environment=OLLAMA_URL=http://ollama:11434
 Environment=CHAT_MODEL=llama3.2:3b-instruct-q4_K_M
 Environment=EMBED_MODEL=nomic-embed-text
 Environment=APP_PASSWORD=%t/llm-rag-api-password
 Environment=CORS_ORIGIN=https://your-portfolio-site.example
+Environment=PRIVATE_DOCS_DIR=/app/private_docs
 PublishPort=127.0.0.1:8010:8000
 
 [Service]

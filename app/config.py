@@ -11,6 +11,7 @@ class Settings:
     cors_origin: str = os.environ.get("CORS_ORIGIN", "*")
     db_path: str = os.environ.get("DB_PATH", "data/vectors.db")
     docs_dir: str = os.environ.get("DOCS_DIR", "docs_corpus")
+    private_docs_dir: str = os.environ.get("PRIVATE_DOCS_DIR", "")
     top_k: int = int(os.environ.get("TOP_K", "4"))
     max_question_len: int = int(os.environ.get("MAX_QUESTION_LEN", "500"))
     max_output_tokens: int = int(os.environ.get("MAX_OUTPUT_TOKENS", "512"))

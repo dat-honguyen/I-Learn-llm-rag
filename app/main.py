@@ -16,6 +16,8 @@ from .ingest import ingest_docs
 async def lifespan(app: FastAPI):
     conn = store.init_db(settings.db_path, dim=store.DEFAULT_DIM)
     await ingest_docs(Path(settings.docs_dir), conn, ollama_client.embed)
+    if settings.private_docs_dir and Path(settings.private_docs_dir).is_dir():
+        await ingest_docs(Path(settings.private_docs_dir), conn, ollama_client.embed)
     app.state.conn = conn
     yield
     conn.close()
