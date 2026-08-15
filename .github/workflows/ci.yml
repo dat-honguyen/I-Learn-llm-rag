@@ -10,11 +10,8 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-      - run: pip install -r requirements.txt
-      - run: pytest -v
+      - run: python3 -m pip install --user --break-system-packages -r requirements.txt
+      - run: python3 -m pytest -v
       - name: Build image
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: podman build -t llm-rag-api:latest .
