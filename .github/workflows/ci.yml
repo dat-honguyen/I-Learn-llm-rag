@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest -v
+      - name: Build image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: podman build -t llm-rag-api:latest .
+      - name: Restart service
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: systemctl --user restart llm-rag-api
