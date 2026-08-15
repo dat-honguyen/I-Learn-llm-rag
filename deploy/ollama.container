@@ -1,0 +1,15 @@
+[Unit]
+Description=Ollama (local LLM inference)
+
+[Container]
+Image=docker.io/ollama/ollama:latest
+AutoUpdate=registry
+ContainerName=ollama
+Network=llm-rag.network
+Volume=ollama-data:/root/.ollama
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

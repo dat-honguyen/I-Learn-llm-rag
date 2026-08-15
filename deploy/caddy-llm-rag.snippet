@@ -1,0 +1,12 @@
+http://llm.datisa.dev {
+	reverse_proxy llm-rag-api:8000 {
+		header_up X-Forwarded-Proto https
+	}
+	rate_limit {
+		zone llm_rag {
+			key {remote_host}
+			events 5
+			window 1m
+		}
+	}
+}

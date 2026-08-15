@@ -1,0 +1,21 @@
+[Unit]
+Description=llm-rag-api (RAG chat service)
+After=ollama.service
+
+[Container]
+Image=localhost/llm-rag-api:latest
+ContainerName=llm-rag-api
+Network=llm-rag.network
+Volume=llm-rag-api-data:/app/data
+Environment=OLLAMA_URL=http://ollama:11434
+Environment=CHAT_MODEL=llama3.2:3b-instruct-q4_K_M
+Environment=EMBED_MODEL=nomic-embed-text
+Environment=APP_PASSWORD=%t/llm-rag-api-password
+Environment=CORS_ORIGIN=https://your-portfolio-site.example
+PublishPort=127.0.0.1:8010:8000
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
