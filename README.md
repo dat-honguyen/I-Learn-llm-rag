@@ -51,6 +51,9 @@ and dragging in pgvector for that would be solving a problem I don't
 have, and a shared password plus rate limiting instead of full SSO
 because this is a public demo, not an account system.
 
+For the recruiter-facing version of this, what RAG actually is and why
+each decision was made, see `docs/rag-architecture-writeup.md`.
+
 ## License
 
 MIT. See `LICENSE`.
