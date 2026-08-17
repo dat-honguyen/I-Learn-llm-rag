@@ -15,14 +15,14 @@ async def embed(text: str) -> list[float]:
         return response.json()["embedding"]
 
 
-async def chat_stream(prompt: str, max_tokens: int) -> AsyncIterator[str]:
+async def chat_stream(messages: list[dict[str, str]], max_tokens: int) -> AsyncIterator[str]:
     async with httpx.AsyncClient(timeout=None) as client:
         stream_ctx = client.stream(
             "POST",
-            f"{settings.ollama_url}/api/generate",
+            f"{settings.ollama_url}/api/chat",
             json={
                 "model": settings.chat_model,
-                "prompt": prompt,
+                "messages": messages,
                 "stream": True,
                 "options": {"num_predict": max_tokens},
             },
@@ -33,7 +33,8 @@ async def chat_stream(prompt: str, max_tokens: int) -> AsyncIterator[str]:
                 if not line:
                     continue
                 payload = json.loads(line)
-                if payload.get("response"):
-                    yield payload["response"]
+                content = payload.get("message", {}).get("content")
+                if content:
+                    yield content
                 if payload.get("done"):
                     break

@@ -9,7 +9,7 @@ async def fake_embed(text: str) -> list[float]:
     return [0.1] * 8
 
 
-async def fake_chat_stream(prompt: str, max_tokens: int):
+async def fake_chat_stream(messages: list[dict], max_tokens: int):
     for token in ["Answer", " goes", " here"]:
         yield token
 
@@ -56,10 +56,10 @@ def test_chat_rejects_question_over_max_length(tmp_path, monkeypatch):
 
 
 def test_chat_remembers_recent_turns_in_same_session(tmp_path, monkeypatch):
-    seen_prompts = []
+    seen_messages = []
 
-    async def recording_chat_stream(prompt: str, max_tokens: int):
-        seen_prompts.append(prompt)
+    async def recording_chat_stream(messages: list[dict], max_tokens: int):
+        seen_messages.append(messages)
         for token in ["Answer", " goes", " here"]:
             yield token
 
@@ -75,9 +75,14 @@ def test_chat_remembers_recent_turns_in_same_session(tmp_path, monkeypatch):
             json={"question": "tell me more", "password": "secret", "session_id": "abc"},
         )
 
-    assert "Recent conversation with this visitor" not in seen_prompts[0]
-    assert "what pets are great?" in seen_prompts[1]
-    assert "Answer goes here" in seen_prompts[1]
+    first_roles = [m["role"] for m in seen_messages[0]]
+    assert first_roles == ["system", "user"]
+
+    second_turn = seen_messages[1]
+    assert second_turn[1] == {"role": "user", "content": "what pets are great?"}
+    assert second_turn[2] == {"role": "assistant", "content": "Answer goes here"}
+    assert second_turn[3]["role"] == "user"
+    assert "tell me more" in second_turn[3]["content"]
 
 
 def test_chat_without_session_id_has_no_recap(tmp_path, monkeypatch):

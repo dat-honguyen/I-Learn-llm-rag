@@ -15,6 +15,19 @@ from .ingest import ingest_docs
 SESSION_HISTORY_TURNS = 6
 MAX_SESSIONS = 500
 
+SYSTEM_PROMPT = (
+    "You are a chat widget on Dat Ho's portfolio site. You answer questions about Dat, "
+    "this RAG project, and the homelab it runs on. Greetings and small talk are fine, "
+    "reply naturally and briefly. For anything else, answer using only the Context given "
+    "in the user's message, and only facts stated there, never your own general "
+    "knowledge, training data, or assumptions. If the Context doesn't cover the answer, "
+    "say you don't know rather than guessing. If a question isn't about Dat, this "
+    "project, or the homelab at all (general trivia, coding help, world facts, anything "
+    "unrelated), say you can only answer questions about Dat and this project, and "
+    "decline. Prior turns of this conversation are shown as earlier messages below; use "
+    "them only to resolve references like 'that' or 'he', never as a source of facts."
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,28 +69,22 @@ async def chat(req: ChatRequest):
         raise HTTPException(status_code=400, detail="question too long")
 
     history = app.state.sessions.get(req.session_id) if req.session_id else None
-    recap = ""
-    if history:
-        recap_lines = "\n".join(f"Q: {q}\nA: {a}" for q, a in history)
-        recap = f"Recent conversation with this visitor:\n{recap_lines}\n\n"
 
     embedding = await ollama_client.embed(req.question)
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
     context = "\n\n".join(text for text, _ in matches)
-    prompt = (
-        "You are a chat widget on Dat Ho's portfolio site. Greetings and small talk "
-        "are fine, reply naturally and briefly. For anything factual about Dat, this "
-        "project, or the homelab, answer using only the context below, and say you "
-        "don't know if it isn't covered there. Don't make up facts that aren't in the "
-        "context. Use the recent conversation only to resolve references like 'that' "
-        "or follow-up questions, not as a source of facts.\n\n"
-        f"{recap}"
-        f"Context:\n{context}\n\nQuestion: {req.question}\nAnswer:"
+
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    for q, a in history or []:
+        messages.append({"role": "user", "content": q})
+        messages.append({"role": "assistant", "content": a})
+    messages.append(
+        {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {req.question}"}
     )
 
     async def stream():
         answer_parts = []
-        async for token in ollama_client.chat_stream(prompt, max_tokens=settings.max_output_tokens):
+        async for token in ollama_client.chat_stream(messages, max_tokens=settings.max_output_tokens):
             answer_parts.append(token)
             yield token
         if req.session_id:

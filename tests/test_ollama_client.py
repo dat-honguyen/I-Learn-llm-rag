@@ -25,9 +25,9 @@ async def test_embed_posts_to_embeddings_endpoint_and_returns_vector(monkeypatch
 @pytest.mark.asyncio
 async def test_chat_stream_yields_response_tokens(monkeypatch):
     lines = [
-        b'{"response": "Hel", "done": false}',
-        b'{"response": "lo", "done": false}',
-        b'{"response": "", "done": true}',
+        b'{"message": {"role": "assistant", "content": "Hel"}, "done": false}',
+        b'{"message": {"role": "assistant", "content": "lo"}, "done": false}',
+        b'{"message": {"role": "assistant", "content": ""}, "done": true}',
     ]
 
     class FakeStreamResponse:
@@ -44,11 +44,18 @@ async def test_chat_stream_yields_response_tokens(monkeypatch):
         def raise_for_status(self):
             return None
 
+    captured = {}
+
     def fake_stream(self, method, url, json):
+        captured["url"] = url
+        captured["json"] = json
         return FakeStreamResponse()
 
     monkeypatch.setattr(httpx.AsyncClient, "stream", fake_stream)
 
-    tokens = [token async for token in ollama_client.chat_stream("hi", max_tokens=10)]
+    messages = [{"role": "user", "content": "hi"}]
+    tokens = [token async for token in ollama_client.chat_stream(messages, max_tokens=10)]
 
     assert tokens == ["Hel", "lo"]
+    assert captured["url"].endswith("/api/chat")
+    assert captured["json"]["messages"] == messages
