@@ -18,6 +18,7 @@ def test_insert_and_top_k_returns_closest_chunk(tmp_path):
 
     assert len(results) == 1
     assert results[0][0] == "chunk about cats"
+    assert results[0][1] == "doc1"
 
 
 def test_get_doc_hash_returns_none_when_absent(tmp_path):

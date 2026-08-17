@@ -75,10 +75,10 @@ def commit(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def top_k(conn: sqlite3.Connection, embedding: list[float], k: int) -> list[tuple[str, float]]:
+def top_k(conn: sqlite3.Connection, embedding: list[float], k: int) -> list[tuple[str, str, float]]:
     rows = conn.execute(
         """
-        SELECT c.text, v.distance
+        SELECT c.text, c.doc_id, v.distance
         FROM vec_chunks v
         JOIN chunks c ON c.id = v.rowid
         WHERE v.embedding MATCH ? AND k = ?
@@ -86,4 +86,4 @@ def top_k(conn: sqlite3.Connection, embedding: list[float], k: int) -> list[tupl
         """,
         (_serialize(embedding), k),
     ).fetchall()
-    return [(text, distance) for text, distance in rows]
+    return [(text, doc_id, distance) for text, doc_id, distance in rows]

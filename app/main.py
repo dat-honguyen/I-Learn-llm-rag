@@ -1,5 +1,4 @@
 import hmac
-import logging
 from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -21,12 +20,19 @@ SYSTEM_PROMPT = (
     "this RAG project, and the homelab it runs on. Greetings and small talk are fine, "
     "reply naturally and briefly. For anything else, answer using only the Context given "
     "in the user's message, and only facts stated there, never your own general "
-    "knowledge, training data, or assumptions. If the Context doesn't cover the answer, "
-    "say you don't know rather than guessing. If a question isn't about Dat, this "
-    "project, or the homelab at all (general trivia, coding help, world facts, anything "
-    "unrelated), say you can only answer questions about Dat and this project, and "
-    "decline. Prior turns of this conversation are shown as earlier messages below; use "
-    "them only to resolve references like 'that' or 'he', never as a source of facts."
+    "knowledge, training data, or assumptions. The Context is made of separate sections, "
+    "each labeled with its source note in brackets, e.g. [experience]. These sections "
+    "are independent notes about different topics (Dat's work history, this RAG "
+    "project's own architecture, the homelab it runs on) — a section mentioning a tool "
+    "or word similar to the question does not make it relevant. Only use the section(s) "
+    "that actually match what's being asked, and ignore the rest, even if other sections "
+    "were retrieved alongside it. If no section covers the answer, say you don't know "
+    "rather than guessing or blending facts from an unrelated section. If a question "
+    "isn't about Dat, this project, or the homelab at all (general trivia, coding help, "
+    "world facts, anything unrelated), say you can only answer questions about Dat and "
+    "this project, and decline. Prior turns of this conversation are shown as earlier "
+    "messages below; use them only to resolve references like 'that' or 'he', never as "
+    "a source of facts."
 )
 
 
@@ -78,11 +84,7 @@ async def chat(req: ChatRequest):
 
     embedding = await ollama_client.embed(retrieval_text)
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
-    context = "\n\n".join(text for text, _ in matches)
-    if matches:
-        logging.getLogger("llm_rag").info(
-            "retrieval best_distance=%.4f question=%r", matches[0][1], req.question
-        )
+    context = "\n\n".join(f"[{doc_id}]\n{text}" for text, doc_id, _ in matches)
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     for q, a in history or []:
