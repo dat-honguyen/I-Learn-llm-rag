@@ -104,19 +104,25 @@ async def chat(req: ChatRequest):
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
 
     best_distance = matches[0][2] if matches else None
-    is_off_topic = (
-        best_distance is not None
-        and best_distance > OFF_TOPIC_DISTANCE_THRESHOLD
-        and not GREETING_PATTERN.match(req.question)
+    has_no_relevant_match = (
+        best_distance is not None and best_distance > OFF_TOPIC_DISTANCE_THRESHOLD
     )
-    if is_off_topic:
+    is_greeting = bool(GREETING_PATTERN.match(req.question))
+
+    if has_no_relevant_match and not is_greeting:
 
         async def decline():
             yield DECLINE_MESSAGE
 
         return StreamingResponse(decline(), media_type="text/plain")
 
-    context = "\n\n".join(f"[{doc_id}]\n{text}" for text, doc_id, _ in matches)
+    # A greeting with no relevant retrieval match doesn't need project context — sending
+    # it irrelevant chunks anyway was confusing the small model into declining hellos.
+    context = (
+        ""
+        if has_no_relevant_match and is_greeting
+        else "\n\n".join(f"[{doc_id}]\n{text}" for text, doc_id, _ in matches)
+    )
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     for q, a in history or []:
