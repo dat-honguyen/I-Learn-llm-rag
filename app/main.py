@@ -1,5 +1,4 @@
 import hmac
-import re
 from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -16,24 +15,13 @@ from .ingest import ingest_docs
 SESSION_HISTORY_TURNS = 6
 MAX_SESSIONS = 500
 
-# Calibrated against the live corpus (2026-08-17): on-topic questions retrieve a best
-# match distance of ~16-17, off-topic/greetings both land at ~22-23, with no overlap
-# below ~19. The model alone was unreliable at declining off-topic questions, so
-# anything with no relevantly-close match skips the LLM and gets a canned decline,
-# except common greetings (which also score as "irrelevant" but should still get a
-# normal reply).
-OFF_TOPIC_DISTANCE_THRESHOLD = 19.0
-DECLINE_MESSAGE = "I can only answer questions about Dat and this project — try asking about his work, or how this RAG service is built."
-GREETING_PATTERN = re.compile(
-    r"^\s*(hi|hello|hey|yo|greetings|sup|good (morning|afternoon|evening)|"
-    r"how('?s| is| are) (it going|you|things)|what'?s up)\b",
-    re.IGNORECASE,
-)
-
 SYSTEM_PROMPT = (
     "You are a chat widget on Dat Ho's portfolio site. You answer questions about Dat, "
     "this RAG project, and the homelab it runs on. Greetings and small talk are fine, "
-    "reply naturally and briefly. For anything else, answer using only the Context given "
+    "reply naturally and briefly. Short or casual questions like 'who is he', 'who are "
+    "you', or 'what is this' are normal and on-topic here — answer them from Context "
+    "just like any other question, don't treat brevity or casual phrasing as a reason "
+    "to decline. For anything else, answer using only the Context given "
     "in the user's message, and only facts stated there, never your own general "
     "knowledge, training data, or assumptions. The Context is made of separate sections, "
     "each labeled with its source note in brackets, e.g. [experience]. These sections "
@@ -102,27 +90,7 @@ async def chat(req: ChatRequest):
 
     embedding = await ollama_client.embed(retrieval_text)
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
-
-    best_distance = matches[0][2] if matches else None
-    has_no_relevant_match = (
-        best_distance is not None and best_distance > OFF_TOPIC_DISTANCE_THRESHOLD
-    )
-    is_greeting = bool(GREETING_PATTERN.match(req.question))
-
-    if has_no_relevant_match and not is_greeting:
-
-        async def decline():
-            yield DECLINE_MESSAGE
-
-        return StreamingResponse(decline(), media_type="text/plain")
-
-    # A greeting with no relevant retrieval match doesn't need project context — sending
-    # it irrelevant chunks anyway was confusing the small model into declining hellos.
-    context = (
-        ""
-        if has_no_relevant_match and is_greeting
-        else "\n\n".join(f"[{doc_id}]\n{text}" for text, doc_id, _ in matches)
-    )
+    context = "\n\n".join(f"[{doc_id}]\n{text}" for text, doc_id, _ in matches)
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     for q, a in history or []:

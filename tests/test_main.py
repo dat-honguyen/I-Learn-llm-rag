@@ -90,38 +90,3 @@ def test_chat_without_session_id_has_no_recap(tmp_path, monkeypatch):
         client.post("/chat", json={"question": "hi", "password": "secret"})
         response = client.post("/chat", json={"question": "hi again", "password": "secret"})
         assert response.status_code == 200
-
-
-async def fake_embed_far_unless_about_cats(text: str) -> list[float]:
-    return [0.1] * 8 if "cat" in text.lower() else [10.0] * 8
-
-
-def test_chat_declines_off_topic_question_without_calling_the_model(tmp_path, monkeypatch):
-    chat_stream_called = False
-
-    async def chat_stream_should_not_run(messages, max_tokens):
-        nonlocal chat_stream_called
-        chat_stream_called = True
-        yield "should not happen"
-
-    with make_client(tmp_path, monkeypatch) as client:
-        monkeypatch.setattr(ollama_client, "embed", fake_embed_far_unless_about_cats)
-        monkeypatch.setattr(main.ollama_client, "chat_stream", chat_stream_should_not_run)
-
-        response = client.post(
-            "/chat", json={"question": "what is the capital of France?", "password": "secret"}
-        )
-
-    assert response.status_code == 200
-    assert response.text == main.DECLINE_MESSAGE
-    assert chat_stream_called is False
-
-
-def test_chat_still_answers_greeting_despite_no_relevant_match(tmp_path, monkeypatch):
-    with make_client(tmp_path, monkeypatch) as client:
-        monkeypatch.setattr(ollama_client, "embed", fake_embed_far_unless_about_cats)
-
-        response = client.post("/chat", json={"question": "hi there!", "password": "secret"})
-
-    assert response.status_code == 200
-    assert response.text == "Answer goes here"
