@@ -7,7 +7,7 @@ When you ask a question, three things happen in order:
 2. That vector gets compared against vectors for every chunk of these notes, stored in
    a local SQLite file using the `sqlite-vec` extension. The closest few chunks win.
 3. Those chunks get pasted into a prompt along with your question, and the whole thing
-   gets sent to a small local chat model (`llama3.2:3b-instruct`, quantized down to fit
+   gets sent to a small local chat model (`llama3.1:8b-instruct`, quantized down to fit
    comfortably in RAM alongside everything else running on the box).
 
 I picked `sqlite-vec` over a "real" vector database on purpose. There are maybe 20-30

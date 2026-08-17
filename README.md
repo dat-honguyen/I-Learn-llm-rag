@@ -3,7 +3,7 @@
 A small RAG chat API I built to actually understand how retrieval-augmented
 generation works, instead of just reading about it.
 
-It runs on my home server: a local model (Ollama, `llama3.2:3b-instruct`,
+It runs on my home server: a local model (Ollama, `llama3.1:8b-instruct`,
 CPU only, no GPU) answers questions using only these notes as context.
 See `docs_corpus/` for what it actually knows about. No OpenAI key, no
 cloud bill, just a Ryzen APU doing its best.
@@ -17,7 +17,7 @@ cloud bill, just a Ryzen APU doing its best.
 
 ## Running it locally
 
-You need Ollama running somewhere with `llama3.2:3b-instruct` and
+You need Ollama running somewhere with `llama3.1:8b-instruct-q4_K_M` and
 `nomic-embed-text` pulled.
 
 ```bash

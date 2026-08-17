@@ -1,0 +1,80 @@
+{
+  "model": "qwen2.5:7b-instruct-q4_K_M",
+  "questions_run": 10,
+  "wall_seconds_mean": 24.16,
+  "wall_seconds_median": 11.86,
+  "wall_seconds_max": 62.29,
+  "tokens_per_sec_mean": 8.68,
+  "results": [
+    {
+      "question": "who is dat",
+      "wall_seconds": 12.56,
+      "eval_count": 56,
+      "tokens_per_sec": 8.74,
+      "prompt_eval_count": 32
+    },
+    {
+      "question": "who are you",
+      "wall_seconds": 4.37,
+      "eval_count": 36,
+      "tokens_per_sec": 8.88,
+      "prompt_eval_count": 32
+    },
+    {
+      "question": "what is this",
+      "wall_seconds": 5.75,
+      "eval_count": 48,
+      "tokens_per_sec": 8.82,
+      "prompt_eval_count": 32
+    },
+    {
+      "question": "what do you do",
+      "wall_seconds": 8.08,
+      "eval_count": 68,
+      "tokens_per_sec": 8.75,
+      "prompt_eval_count": 33
+    },
+    {
+      "question": "why did Dat pick sqlite-vec instead of a real vector database?",
+      "wall_seconds": 48.09,
+      "eval_count": 407,
+      "tokens_per_sec": 8.54,
+      "prompt_eval_count": 43
+    },
+    {
+      "question": "what database does the RAG project use?",
+      "wall_seconds": 30.03,
+      "eval_count": 254,
+      "tokens_per_sec": 8.58,
+      "prompt_eval_count": 38
+    },
+    {
+      "question": "where did the author work at Topicus Healthcare?",
+      "wall_seconds": 11.15,
+      "eval_count": 93,
+      "tokens_per_sec": 8.69,
+      "prompt_eval_count": 39
+    },
+    {
+      "question": "what tools does Dat use day to day?",
+      "wall_seconds": 62.29,
+      "eval_count": 527,
+      "tokens_per_sec": 8.52,
+      "prompt_eval_count": 38
+    },
+    {
+      "question": "how does the retrieval step work?",
+      "wall_seconds": 49.7,
+      "eval_count": 421,
+      "tokens_per_sec": 8.54,
+      "prompt_eval_count": 36
+    },
+    {
+      "question": "what hardware does this run on?",
+      "wall_seconds": 9.57,
+      "eval_count": 80,
+      "tokens_per_sec": 8.73,
+      "prompt_eval_count": 36
+    }
+  ]
+}

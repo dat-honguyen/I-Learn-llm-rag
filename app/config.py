@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class Settings:
     ollama_url: str = os.environ.get("OLLAMA_URL", "http://ollama:11434")
-    chat_model: str = os.environ.get("CHAT_MODEL", "llama3.2:3b-instruct-q4_K_M")
+    chat_model: str = os.environ.get("CHAT_MODEL", "llama3.1:8b-instruct-q4_K_M")
     embed_model: str = os.environ.get("EMBED_MODEL", "nomic-embed-text")
     app_password: str = os.environ.get("APP_PASSWORD", "")
     cors_origin: str = os.environ.get("CORS_ORIGIN", "*")

@@ -65,11 +65,20 @@ the app's own container volume: no new service to run, no extra RAM pressure on 
 infrastructure, no coupling to state other services depend on. If the corpus ever grew
 into the tens of thousands of chunks, I'd reconsider. It hasn't, so I didn't.
 
-**A small quantized model, CPU-only.** No discrete GPU on the box, so the model has to be
-small enough to answer in a few seconds on a CPU. I'm running `llama3.2:3b-instruct`,
-quantized to Q4. That's a real constraint, not a preference: a bigger model would answer
-better but take too long to be usable as a live demo. Right-sizing the model to the
-hardware was part of the design, not an afterthought.
+**A quantized model, CPU-only, sized by benchmarking rather than guessing.** No discrete
+GPU on the box, so the model has to be small enough to answer in a reasonable time on a
+CPU. Started with `llama3.2:3b-instruct-q4_K_M` for the initial build. It had a real,
+specific weakness: on multi-turn follow-ups it would sometimes answer using facts from
+the wrong document in the corpus (e.g. mixing up my own work history with this project's
+own tech stack) — not fixable through more prompt engineering, a capability ceiling of a
+3B model at 4-bit quantization. Benchmarked it against two 7-8B candidates
+(`llama3.1:8b-instruct-q4_K_M`, `qwen2.5:7b-instruct-q4_K_M`) on both speed/thermals and a
+fixed quality test battery covering that exact failure case. Both candidates fixed it
+cleanly; picked `llama3.1:8b-instruct-q4_K_M` since it came out roughly equivalent to the
+alternative on quality and was measured from a fairer, colder baseline. The real cost:
+mean response time roughly doubled (11.7s to 20.9s) and peak CPU temp went up ~6°C — a
+tradeoff made deliberately, after measuring it, not assumed away. Benchmark scripts and
+raw results are in `benchmarks/` in this repo.
 
 **A shared password instead of full SSO.** My homelab already has Authentik running SSO
 for other services, and the standing rule there is new services should use it. I didn't,

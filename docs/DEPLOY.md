@@ -6,7 +6,7 @@
    (don't commit it).
 3. `systemctl --user daemon-reload`
 4. `systemctl --user start ollama`
-5. `podman exec ollama ollama pull llama3.2:3b-instruct-q4_K_M`
+5. `podman exec ollama ollama pull llama3.1:8b-instruct-q4_K_M`
 6. `podman exec ollama ollama pull nomic-embed-text`
 7. First image pull: `podman pull ghcr.io/dat-honguyen/llm-rag-api:latest`, then
    `systemctl --user start llm-rag-api`. After that, pushes to `main` build and push the

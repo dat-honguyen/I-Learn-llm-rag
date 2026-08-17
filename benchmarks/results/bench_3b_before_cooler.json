@@ -1,0 +1,80 @@
+{
+  "model": "llama3.2:3b-instruct-q4_K_M",
+  "questions_run": 10,
+  "wall_seconds_mean": 11.66,
+  "wall_seconds_median": 12.75,
+  "wall_seconds_max": 24.67,
+  "tokens_per_sec_mean": 18.46,
+  "results": [
+    {
+      "question": "who is dat",
+      "wall_seconds": 11.15,
+      "eval_count": 170,
+      "tokens_per_sec": 18.4,
+      "prompt_eval_count": 28
+    },
+    {
+      "question": "who are you",
+      "wall_seconds": 14.35,
+      "eval_count": 257,
+      "tokens_per_sec": 18.2,
+      "prompt_eval_count": 28
+    },
+    {
+      "question": "what is this",
+      "wall_seconds": 2.02,
+      "eval_count": 34,
+      "tokens_per_sec": 19.13,
+      "prompt_eval_count": 28
+    },
+    {
+      "question": "what do you do",
+      "wall_seconds": 16.19,
+      "eval_count": 290,
+      "tokens_per_sec": 18.17,
+      "prompt_eval_count": 29
+    },
+    {
+      "question": "why did Dat pick sqlite-vec instead of a real vector database?",
+      "wall_seconds": 21.91,
+      "eval_count": 390,
+      "tokens_per_sec": 18.03,
+      "prompt_eval_count": 39
+    },
+    {
+      "question": "what database does the RAG project use?",
+      "wall_seconds": 5.19,
+      "eval_count": 91,
+      "tokens_per_sec": 18.59,
+      "prompt_eval_count": 34
+    },
+    {
+      "question": "where did the author work at Topicus Healthcare?",
+      "wall_seconds": 2.3,
+      "eval_count": 38,
+      "tokens_per_sec": 19.03,
+      "prompt_eval_count": 35
+    },
+    {
+      "question": "what tools does Dat use day to day?",
+      "wall_seconds": 24.67,
+      "eval_count": 439,
+      "tokens_per_sec": 18.0,
+      "prompt_eval_count": 34
+    },
+    {
+      "question": "how does the retrieval step work?",
+      "wall_seconds": 15.84,
+      "eval_count": 283,
+      "tokens_per_sec": 18.18,
+      "prompt_eval_count": 32
+    },
+    {
+      "question": "what hardware does this run on?",
+      "wall_seconds": 2.97,
+      "eval_count": 51,
+      "tokens_per_sec": 18.88,
+      "prompt_eval_count": 32
+    }
+  ]
+}
