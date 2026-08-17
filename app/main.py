@@ -1,4 +1,5 @@
 import hmac
+import logging
 from collections import deque
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -70,9 +71,18 @@ async def chat(req: ChatRequest):
 
     history = app.state.sessions.get(req.session_id) if req.session_id else None
 
-    embedding = await ollama_client.embed(req.question)
+    retrieval_text = req.question
+    if history:
+        last_q, last_a = history[-1]
+        retrieval_text = f"{last_q}\n{last_a}\n{req.question}"
+
+    embedding = await ollama_client.embed(retrieval_text)
     matches = store.top_k(app.state.conn, embedding, settings.top_k)
     context = "\n\n".join(text for text, _ in matches)
+    if matches:
+        logging.getLogger("llm_rag").info(
+            "retrieval best_distance=%.4f question=%r", matches[0][1], req.question
+        )
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     for q, a in history or []:
